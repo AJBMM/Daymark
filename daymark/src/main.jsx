@@ -53,13 +53,22 @@ function App() {
   }
   function notify(message) { setToast(message); setTimeout(() => setToast(''), 2800) }
 
-  async function signIn(e) {
-    e.preventDefault(); setAuthError('')
-    const fn = authMode === 'signup' ? supabase.auth.signUp : supabase.auth.signInWithPassword
-    const { error } = await fn({ email, password })
-    if (error) setAuthError(error.message)
-    else if (authMode === 'signup') setAuthError('Check your email to confirm your account, then sign in.')
+  
+async function signIn(e) {
+  e.preventDefault()
+  setAuthError('')
+
+  const { data, error } = authMode === 'signup'
+    ? await supabase.auth.signUp({ email, password })
+    : await supabase.auth.signInWithPassword({ email, password })
+
+  if (error) {
+    setAuthError(error.message)
+  } else if (authMode === 'signup') {
+    setAuthError('Check your email to confirm your account, then sign in.')
   }
+}
+
   async function signOut() { await supabase.auth.signOut(); setTasks([]) }
 
   async function saveTask(values) {
